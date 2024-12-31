@@ -41,7 +41,31 @@ enum ParsePersonError {
 impl FromStr for Person {
     type Err = ParsePersonError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {}
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parts: Vec<&str> = s.split(',').collect();
+
+        // Must have exactly 2 parts: name and age
+        if parts.len() != 2 {
+            return Err(ParsePersonError::BadLen);
+        }
+
+        let name_part = parts[0];
+        let age_part = parts[1];
+
+        // Name must not be empty
+        if name_part.is_empty() {
+            return Err(ParsePersonError::NoName);
+        }
+
+        // Parse the age into a u8
+        match age_part.parse::<u8>() {
+            Ok(age) => Ok(Person {
+                name: name_part.to_string(),
+                age,
+            }),
+            Err(e) => Err(ParsePersonError::ParseInt(e)),
+        }
+    }
 }
 
 fn main() {
